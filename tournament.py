@@ -52,11 +52,9 @@ def registerPlayer(name):
     conn = connect()
     c = conn.cursor()
     c.execute('''INSERT INTO player_rec (name)
-                 VALUES (%s);''',(name,))
+                 VALUES (%s);''', (name,))
     conn.commit()
     conn.close()
-
-def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
 
     The first entry in the list should be the player in first place, or a player
@@ -77,7 +75,6 @@ def playerStandings():
                  FROM match_rec
                  ORDER BY wins DESC;''')
     result = c.fetchall()
-    print "HERE ARE THE RESULTS", result
     conn.commit()
     conn.close()
     return result
@@ -89,6 +86,20 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute('''UPDATE match_rec
+                 SET wins = wins + 1
+                 WHERE win_id = %s;''', (winner,))
+    c.execute('''UPDATE match_rec
+                 SET matches = matches + 1
+                 WHERE win_id = %s;''', (winner,))
+    c.execute('''UPDATE match_rec
+                 SET matches = matches + 1
+                 WHERE win_id = %s;''', (loser,))
+
+    conn.commit()
+    conn.close()
 
 
 def swissPairings():
