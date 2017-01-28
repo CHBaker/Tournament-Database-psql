@@ -55,6 +55,8 @@ def registerPlayer(name):
                  VALUES (%s);''', (name,))
     conn.commit()
     conn.close()
+
+def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
 
     The first entry in the list should be the player in first place, or a player
