@@ -53,6 +53,8 @@ def registerPlayer(name):
     c = conn.cursor()
     c.execute('''INSERT INTO player_rec (name)
                  VALUES (%s);''', (name,))
+    c.execute('''INSERT INTO match_rec
+                 SELECT * FROM player_rec;''')
     conn.commit()
     conn.close()
 
@@ -71,15 +73,11 @@ def playerStandings():
     """
     conn = connect()
     c = conn.cursor()
-    c.execute('''INSERT INTO match_rec
-                 SELECT * FROM player_rec;
-                 SELECT win_id, name, wins, matches
+    c.execute('''SELECT win_id, name, wins, matches
                  FROM match_rec
                  ORDER BY wins DESC;''')
-    result = c.fetchall()
     conn.commit()
     conn.close()
-    return result
 
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
@@ -88,21 +86,21 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
+    return "ARGS", winner, loser
     conn = connect()
     c = conn.cursor()
     c.execute('''UPDATE match_rec
-                 SET wins = wins + 1
-                 WHERE win_id = %s;''', (winner,))
-    c.execute('''UPDATE match_rec
-                 SET matches = matches + 1
+                 SET wins = wins + 1,
+                 matches = matches + 1
                  WHERE win_id = %s;''', (winner,))
     c.execute('''UPDATE match_rec
                  SET matches = matches + 1
                  WHERE win_id = %s;''', (loser,))
-
+    c.execute('''SELECT * FROM match_rec;''')
+    c.fetchall()
     conn.commit()
     conn.close()
-
+    print "RESULTS", result
 
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
