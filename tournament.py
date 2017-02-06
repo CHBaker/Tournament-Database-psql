@@ -125,13 +125,10 @@ def swissPairings():
                            names[name_count],
                            ids[id_count + 1],
                            names[name_count + 1]))
-        id_count += 1
-        name_count += 1
-
-    print '\n \n \n \n P LIST', player_list
+        id_count += 2
+        name_count += 2
 
     conn.close()
-
     return player_list
 
 
