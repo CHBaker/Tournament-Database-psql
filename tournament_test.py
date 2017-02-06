@@ -140,8 +140,11 @@ def testPairings():
                           frozenset([id4, id8]), frozenset([id6, id8])
                           ])
     actual_pairs = set([frozenset([pid1, pid2]), frozenset([pid3, pid4]), frozenset([pid5, pid6]), frozenset([pid7, pid8])])
+    print "\n \n \n \n POSS PAIRS", possible_pairs
+    print "\n \n \n \n ACT PAIRS", actual_pairs
     for pair in actual_pairs:
         if pair not in possible_pairs:
+            print 'NOT POSSIBLE PAIRS', pair
             raise ValueError(
                 "After one match, players with one win should be paired.")
     print "10. After one match, players with one win are properly paired."

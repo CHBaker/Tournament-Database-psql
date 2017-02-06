@@ -29,13 +29,13 @@ def deletePlayers():
     conn.commit()
     conn.close()
 
+
 def countPlayers():
     """Returns the number of players currently registered."""
     conn = connect()
     c = conn.cursor()
     c.execute('''SELECT COUNT(*) FROM player_rec;''')
     result = c.fetchone()
-    conn.commit()
     conn.close()
     return result[0]
 
@@ -53,10 +53,9 @@ def registerPlayer(name):
     c = conn.cursor()
     c.execute('''INSERT INTO player_rec (name)
                  VALUES (%s);''', (name,))
-    c.execute('''INSERT INTO match_rec
-                 SELECT * FROM player_rec;''')
     conn.commit()
     conn.close()
+
 
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
@@ -73,11 +72,11 @@ def playerStandings():
     """
     conn = connect()
     c = conn.cursor()
-    c.execute('''SELECT win_id, name, wins, matches
-                 FROM match_rec
-                 ORDER BY wins DESC;''')
-    conn.commit()
+    c.execute('''SELECT * FROM standings_view ORDER BY wins DESC''')
+    result = c.fetchall()
     conn.close()
+    return result
+
 
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
@@ -86,21 +85,13 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
-    return "ARGS", winner, loser
     conn = connect()
     c = conn.cursor()
-    c.execute('''UPDATE match_rec
-                 SET wins = wins + 1,
-                 matches = matches + 1
-                 WHERE win_id = %s;''', (winner,))
-    c.execute('''UPDATE match_rec
-                 SET matches = matches + 1
-                 WHERE win_id = %s;''', (loser,))
-    c.execute('''SELECT * FROM match_rec;''')
-    c.fetchall()
+    c.execute('''INSERT INTO match_rec (winner, loser)
+                 VALUES (%s,%s);''', [(winner,),(loser,)])
     conn.commit()
     conn.close()
-    print "RESULTS", result
+
 
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
@@ -117,5 +108,33 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute('''SELECT id FROM standings_view ORDER BY wins DESC;''')
+    ids = c.fetchall()
+
+    c.execute('''SELECT name FROM standings_view ORDER BY wins DESC;''')
+    names = c.fetchall()
+
+    player_list = []
+    id_count = 0
+    name_count = 0
+
+    for i in range(len(ids) / 2):
+        player_list.extend(zip(ids[id_count],
+                           names[name_count],
+                           ids[id_count + 1],
+                           names[name_count + 1]))
+        id_count += 1
+        name_count += 1
+
+    print '\n \n \n \n P LIST', player_list
+
+    conn.close()
+
+    return player_list
+
+
+
 
 
